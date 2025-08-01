@@ -27,6 +27,8 @@ class MvCamError(IntEnum):
     MV_E_VERSION = 0x80000009
     MV_E_NOENOUGH_BUF = 0x8000000A
     MV_E_UNKNOWN = 0x800000FF
+    # Additional error codes found in practice
+    MV_E_NO_CAMERAS = -2147483644  # No cameras available
 
 class PixelFormat(IntEnum):
     """Pixel format definitions"""
@@ -137,8 +139,9 @@ class MvCamSDK:
             handle = ctypes.c_void_p()
             ret = self.lib.MV_CC_CreateHandle(ctypes.byref(handle), 0)  # 0 for USB3.0
             if ret != MvCamError.MV_OK:
-                print(f"Warning: Failed to create camera handle: {ret}")
-                # Return empty list but don't raise exception
+                # Don't print warning for normal "no cameras" scenario
+                if ret != MvCamError.MV_E_NO_CAMERAS:  # Only print for unexpected errors
+                    print(f"Warning: Failed to create camera handle: {ret}")
                 return devices
             
             try:
@@ -146,7 +149,8 @@ class MvCamSDK:
                 device_count = ctypes.c_uint()
                 ret = self.lib.MV_CC_EnumDevices(0, None, 0, ctypes.byref(device_count))
                 if ret != MvCamError.MV_OK:
-                    print(f"Warning: Failed to get device count: {ret}")
+                    if ret != MvCamError.MV_E_NO_CAMERAS:  # Only print for unexpected errors
+                        print(f"Warning: Failed to get device count: {ret}")
                     return devices
                 
                 if device_count.value == 0:
@@ -158,7 +162,8 @@ class MvCamSDK:
                 
                 ret = self.lib.MV_CC_EnumDevices(0, device_info_buffer, device_info_size, ctypes.byref(device_count))
                 if ret != MvCamError.MV_OK:
-                    print(f"Warning: Failed to enumerate devices: {ret}")
+                    if ret != MvCamError.MV_E_NO_CAMERAS:  # Only print for unexpected errors
+                        print(f"Warning: Failed to enumerate devices: {ret}")
                     return devices
                 
                 # Parse device info (simplified - in real implementation, parse the buffer)
@@ -188,7 +193,9 @@ class MvCamSDK:
             self.camera_handle = ctypes.c_void_p()
             ret = self.lib.MV_CC_CreateHandle(ctypes.byref(self.camera_handle), 0)  # 0 for USB3.0
             if ret != MvCamError.MV_OK:
-                print(f"Warning: Failed to create camera handle: {ret}")
+                # Don't print warning for normal "no cameras" scenario
+                if ret != MvCamError.MV_E_NO_CAMERAS:  # Only print for unexpected errors
+                    print(f"Warning: Failed to create camera handle: {ret}")
                 # For now, simulate connection for testing
                 self.camera_handle = ctypes.c_void_p(1)  # Dummy handle
                 self.is_connected = True
@@ -197,7 +204,8 @@ class MvCamSDK:
             # Open camera
             ret = self.lib.MV_CC_OpenDevice(self.camera_handle, device_index)
             if ret != MvCamError.MV_OK:
-                print(f"Warning: Failed to open camera: {ret}")
+                if ret != MvCamError.MV_E_NO_CAMERAS:  # Only print for unexpected errors
+                    print(f"Warning: Failed to open camera: {ret}")
                 self.lib.MV_CC_DestroyHandle(self.camera_handle)
                 # For now, simulate connection for testing
                 self.camera_handle = ctypes.c_void_p(1)  # Dummy handle

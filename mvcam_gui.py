@@ -143,7 +143,12 @@ class MvCamGUI(QMainWindow):
             try:
                 self.sdk = MvCamSDK()
                 self.camera_thread.set_sdk(self.sdk)
-                self.status_label.setText("SDK initialized successfully")
+                # Check if any cameras are available
+                devices = self.sdk.enum_devices()
+                if devices:
+                    self.status_label.setText(f"SDK initialized successfully - {len(devices)} camera(s) found")
+                else:
+                    self.status_label.setText("SDK initialized successfully - No cameras detected (simulation mode)")
             except Exception as e:
                 QMessageBox.warning(self, "SDK Warning", f"Failed to initialize SDK: {str(e)}")
                 self.status_label.setText("SDK initialization failed")
