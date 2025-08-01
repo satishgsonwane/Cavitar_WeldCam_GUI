@@ -1,4 +1,18 @@
+# Core GUI Framework
 PyQt6>=6.4.0
+
+# Image Processing and Computer Vision
 opencv-python>=4.8.0
+
+# Numerical Computing
 numpy>=1.24.0
-Pillow>=10.0.0 
+
+# Image Handling
+Pillow>=10.0.0
+
+# System and Standard Library (built-in, no installation needed)
+# - os
+# - sys
+# - ctypes
+# - enum
+# - typing 

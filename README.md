@@ -28,10 +28,10 @@ The application features a split-panel interface with:
 - MvCamCtrlSDK Runtime (already installed)
 
 ### Python Dependencies
-- PyQt6 (GUI framework)
-- OpenCV (image processing)
-- NumPy (numerical operations)
-- Pillow (image handling)
+- PyQt6>=6.4.0 (GUI framework)
+- opencv-python>=4.8.0 (image processing)
+- numpy>=1.24.0 (numerical operations)
+- Pillow>=10.0.0 (image handling)
 
 ## Installation
 
@@ -42,12 +42,45 @@ The application features a split-panel interface with:
 pip install -r requirements.txt
 
 # Or install individually
-pip install PyQt6 opencv-python numpy Pillow
+pip install PyQt6>=6.4.0 opencv-python>=4.8.0 numpy>=1.24.0 Pillow>=10.0.0
 ```
 
-### 2. Verify SDK Installation
+### 2. Install MvCamCtrlSDK
 
-The MvCamCtrlSDK should already be installed at `/opt/MVS/`. Verify with:
+#### Download and Install SDK
+1. Visit the official Hikvision download page: https://www.hikrobotics.com/en/machinevision/service/download/?module=0
+2. Download **"Machine Vision Industrial Camera SDK V4.5.0 Runtime Package（Linux）" (Or any latest version)**
+3. Extract the downloaded ZIP file
+4. Navigate to the extracted directory and find the `.deb` file for x86_64 architecture
+5. Install the SDK using the .deb package:
+
+```bash
+# Navigate to the extracted SDK directory
+cd /path/to/extracted/sdk
+
+# Install the .deb package (requires sudo privileges)
+sudo dpkg -i MvCameraControl_*.deb
+
+# If there are dependency issues, fix them
+sudo apt-get install -f
+sudo apt update
+```
+
+#### Alternative Installation Methods
+```bash
+# Method 1: Using apt (if available)
+sudo apt update
+sudo apt install ./MvCameraControl_*.deb
+
+# Method 2: Manual installation
+sudo mkdir -p /opt/MVS
+sudo cp -r * /opt/MVS/
+sudo chmod -R 755 /opt/MVS/
+```
+
+### 3. Verify SDK Installation
+
+The MvCamCtrlSDK should be installed at `/opt/MVS/`. Verify with:
 
 ```bash
 ls -la /opt/MVS/lib/64/
@@ -55,7 +88,7 @@ ls -la /opt/MVS/lib/64/
 
 You should see files like `libMvCameraControl.so`, `libMvCameraControlWrapper.so`, etc.
 
-### 3. Set Environment Variables
+### 4. Set Environment Variables
 
 ```bash
 # Add SDK library path to LD_LIBRARY_PATH
@@ -174,9 +207,10 @@ The application now includes full real camera support:
 1. **"SDK library not found"**
    - Verify SDK installation: `ls /opt/MVS/lib/64/`
    - Check LD_LIBRARY_PATH: `echo $LD_LIBRARY_PATH`
+   - Ensure .deb package was installed correctly: `dpkg -l | grep MvCamera`
 
 2. **"No module named 'PyQt6'"**
-   - Install PyQt6: `pip install PyQt6`
+   - Install PyQt6: `pip install PyQt6>=6.4.0`
 
 3. **Camera not detected**
    - Check USB permissions: `lsusb`
@@ -185,6 +219,12 @@ The application now includes full real camera support:
 4. **Permission denied**
    - Run with sudo for first-time setup
    - Check udev rules installation
+
+5. **SDK installation issues**
+   - Ensure you downloaded the correct Linux runtime package
+   - Check .deb package installation: `dpkg -l | grep MvCamera`
+   - Fix broken dependencies: `sudo apt-get install -f`
+   - Verify file permissions: `ls -la /opt/MVS/`
 
 ### Debug Mode
 
@@ -197,17 +237,18 @@ python3 -u mvcam_gui.py 2>&1 | tee debug.log
 
 This application is designed to work with the MvCamCtrlSDK. For full camera functionality:
 
-1. **Download Development Package**
-   - Get headers and examples from Hikvision
-   - Install development package
+1. **Download SDK Package**
+   - Visit: https://www.hikrobotics.com/en/machinevision/service/download/?module=0
+   - Download "Machine Vision Industrial Camera SDK V4.5.0 Runtime Package（Linux）"
+   - Install using the provided .deb package
 
-2. **Implement SDK Functions**
-   - Camera enumeration
-   - Device connection
-   - Image acquisition
-   - Parameter setting
+2. **SDK Features**
+   - Camera enumeration and connection
+   - Image acquisition and streaming
+   - Parameter setting and getting
+   - Trigger control
 
-3. **Add Error Handling**
+3. **Error Handling**
    - SDK error codes
    - Connection timeouts
    - Resource cleanup
@@ -222,6 +263,7 @@ For issues related to:
 - **This GUI Application**: Check troubleshooting section
 - **MvCamCtrlSDK**: Contact Hikvision support
 - **Camera Hardware**: Refer to camera documentation
+- **SDK Download**: Visit https://www.hikrobotics.com/en/machinevision/service/download/?module=0
 
 ## Version History
 
@@ -230,4 +272,4 @@ For issues related to:
 
 ---
 
-**Note**: This application now supports real Hikvision cameras through the MvCamCtrlSDK. The SDK must be installed at `/opt/MVS/` for full functionality. 
+**Note**: This application now supports real Hikvision cameras through the MvCamCtrlSDK. The SDK must be installed at `/opt/MVS/` for full functionality. Download the SDK from the official Hikvision website and install using the provided .deb package for x86_64 architecture. 
